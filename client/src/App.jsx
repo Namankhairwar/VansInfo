@@ -13,7 +13,7 @@ const REASONS = [
 ]
 
 export default function App() {
-  const [form, setForm] = useState({ name: '', email: '', reason: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', reason: '', message: '' })
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -21,15 +21,19 @@ export default function App() {
 
   const submit = async () => {
     setStatus(null)
-    if (!form.name || !form.email || !form.reason) {
-      setStatus({ type: 'error', msg: 'Please fill in your name, email, and reason.' })
-      return
-    }
+    if (!form.name || !form.email || !form.reason || !form.phone) {
+  setStatus({ type: 'error', msg: 'Please fill in all required fields.' })
+  return
+}
+if (form.phone.length !== 10) {
+  setStatus({ type: 'error', msg: 'Please enter a valid 10-digit phone number.' })
+  return
+}
     setLoading(true)
     try {
       await axios.post('https://vansinfo-production.up.railway.app/api/contact', form)
-      setStatus({ type: 'success', msg: `Thanks ${form.name.split(' ')[0]}! Check your inbox — we've sent a confirmation email.` })
-      setForm({ name: '', email: '', reason: '', message: '' })
+      setStatus({ type: 'success', msg: `Thanks ${form.name.split(' ')[0]}! Your message has been sent successfully. We'll get back to you soon.` })
+     setForm({ name: '', email: '', phone: '', reason: '', message: '' })
     } catch (err) {
       const msg = err.response?.data?.error || 'Something went wrong. Please try again.'
       setStatus({ type: 'error', msg })
@@ -52,12 +56,17 @@ export default function App() {
         <div className="row">
           <div className="field">
             <label>Full name</label>
-            <input name="name" value={form.name} onChange={handle} placeholder="Jane Smith" />
+            <input name="name" value={form.name} onChange={handle} placeholder="Renew Bhagwat" />
           </div>
           <div className="field">
             <label>Email address</label>
-            <input name="email" type="email" value={form.email} onChange={handle} placeholder="jane@example.com" />
+            <input name="email" type="email" value={form.email} onChange={handle} placeholder="renew@example.com" />
           </div>
+        </div>
+
+          <div className="field">
+          <label>Phone number</label>
+          <input name="phone" type="tel" value={form.phone} onChange={handle} placeholder="98765 43210" maxLength={10} />
         </div>
 
         <div className="field">
