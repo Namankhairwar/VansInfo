@@ -50,58 +50,37 @@ export async function POST(request: Request) {
     const safeMobile = escapeHtml(mobile)
     const safeMessage = escapeHtml(message).replaceAll("\n", "<br />")
 
-    const [internalEmailResult, autoReplyResult] = await Promise.all([
-      resend.emails.send({
-        from: fromEmail,
-        to: [toEmail],
-        replyTo: email,
-        subject: "New Contact Form Submission",
-        text: [
-          `Name: ${name}`,
-          `Email: ${email}`,
-          `Mobile Number: ${mobile}`,
-          "",
-          "Message:",
-          message,
-        ].join("\n"),
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${safeName}</p>
-          <p><strong>Email:</strong> ${safeEmail}</p>
-          <p><strong>Mobile Number:</strong> ${safeMobile}</p>
-          <p><strong>Message:</strong></p>
-          <p>${safeMessage}</p>
-        `,
-      }),
-      resend.emails.send({
-        from: fromEmail,
-        to: [email],
-        subject: "Thank You for Contacting Vans Healthcare",
-        text: [
-          `Hi ${name},`,
-          "",
-          "Thank you for contacting Vans Healthcare.",
-          "We have received your message.",
-          "Our team will review your inquiry and respond as soon as possible.",
-          "",
-          "Submitted message for reference:",
-          message,
-        ].join("\n"),
-        html: `
-          <p>Hi ${safeName},</p>
-          <p>Thank you for contacting Vans Healthcare.</p>
-          <p>We have received your message.</p>
-          <p>Our team will review your inquiry and respond as soon as possible.</p>
-          <p><strong>Submitted message for reference:</strong></p>
-          <p>${safeMessage}</p>
-        `,
-      }),
-    ])
+    const internalEmailResult = await resend.emails.send({
+      from: fromEmail,
+      to: [toEmail],
+      replyTo: email,
+      subject: "New Contact Form Submission",
+      text: [
+        `Name: ${name}`,
+        `Email: ${email}`,
+        `Mobile Number: ${mobile}`,
+        "",
+        "Message:",
+        message,
+      ].join("\n"),
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Mobile Number:</strong> ${safeMobile}</p>
+        <p><strong>Message:</strong></p>
+        <p>${safeMessage}</p>
+      `,
+    })
 
-    if (internalEmailResult.error || autoReplyResult.error) {
-      console.error("Resend email send failed.", {
-        internalError: internalEmailResult.error,
-        autoReplyError: autoReplyResult.error,
+    console.log("Resend internal email response:", internalEmailResult)
+
+    if (internalEmailResult.error) {
+      console.error("Resend internal email send failed:", {
+        error: internalEmailResult.error,
+        resendMessage:
+          internalEmailResult.error.message ??
+          "Unknown Resend error while sending internal email.",
       })
 
       return NextResponse.json(
