@@ -12,11 +12,8 @@ export const runtime = "nodejs"
 
 function getEnvConfig() {
   const resendApiKey = process.env.RESEND_API_KEY
-  // const fromEmail = process.env.CONTACT_FROM_EMAIL
-  const fromEmail = 'onboarding@resend.dev'
-  // const toEmail = process.env.CONTACT_TO_EMAIL
-  const toEmail = 'kanikalnaik@gmail.com'
-
+  const fromEmail = process.env.CONTACT_FROM_EMAIL
+  const toEmail = process.env.CONTACT_TO_EMAIL
 
   if (!resendApiKey || !fromEmail || !toEmail) {
     throw new Error("Missing Resend environment variables.")
@@ -60,11 +57,10 @@ export async function POST(request: Request) {
         replyTo: email,
         subject: "New Contact Form Submission",
         text: [
-          "A new contact form inquiry has been received.",
-          "",
           `Name: ${name}`,
           `Email: ${email}`,
           `Mobile Number: ${mobile}`,
+          "",
           "Message:",
           message,
         ].join("\n"),
@@ -85,19 +81,18 @@ export async function POST(request: Request) {
           `Hi ${name},`,
           "",
           "Thank you for contacting Vans Healthcare.",
-          "We have received your message and our team will review your inquiry and respond as soon as possible.",
+          "We have received your message.",
+          "Our team will review your inquiry and respond as soon as possible.",
           "",
-          "Your submitted message:",
+          "Submitted message for reference:",
           message,
         ].join("\n"),
         html: `
           <p>Hi ${safeName},</p>
           <p>Thank you for contacting Vans Healthcare.</p>
-          <p>
-            We have received your message and our team will review your inquiry
-            and respond as soon as possible.
-          </p>
-          <p><strong>Your submitted message:</strong></p>
+          <p>We have received your message.</p>
+          <p>Our team will review your inquiry and respond as soon as possible.</p>
+          <p><strong>Submitted message for reference:</strong></p>
           <p>${safeMessage}</p>
         `,
       }),
